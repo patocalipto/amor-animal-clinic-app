@@ -40,29 +40,43 @@ erDiagram
 
 ---
 
-## 🚀 Puesta en Marcha en 3 Pasos
+## 🚀 Guía de Instalación y Ejecución Local
 
-### Paso 1: Iniciar MySQL en XAMPP
-1. Abre el **XAMPP Control Panel**.
-2. Presiona el botón **Start** en el módulo **MySQL** (puerto `3306`).
+Cualquier persona que clone este repositorio puede ejecutar el sistema en su propia computadora siguiendo estos pasos:
 
-### Paso 2: Iniciar la Aplicación
-Desde tu terminal en Visual Studio Code o PowerShell:
-```powershell
-cd "c:\Users\patri\OneDrive\Escritorio\Escuela\Quinto\Simulacion\My portfolio\My-Portfolio\clinica_amor_animal"
-python main.py
-```
-*(O simplemente haz doble clic en `run_app.bat` o `run_clinica.bat`)*
+### 1. Prerrequisitos
+- **Python 3.10 o superior**
+- **XAMPP** (con el servicio **MySQL** activo en el puerto `3306`)
 
-### Paso 3: Abrir en el Navegador
-Abre tu navegador en:
-```text
-http://localhost:8000
+### 2. Clonar el Repositorio e Instalar Dependencias
+```bash
+git clone https://github.com/patocalipto/amor-animal-clinic-app.git
+cd amor-animal-clinic-app
+pip install -r requirements.txt
 ```
-Y para consultar la documentación interactiva Swagger:
-```text
-http://localhost:8000/docs
-```
+
+### 3. Iniciar el Servidor de Base de Datos (MySQL)
+1. Abre el panel de control de **XAMPP**.
+2. Presiona **Start** en el módulo **MySQL** (verificando que esté en color verde en el puerto `3306`).
+
+### 4. Ejecutar la Aplicación
+Puedes iniciar la aplicación con cualquiera de las dos formas:
+- **Por Terminal:**
+  ```bash
+  python main.py
+  ```
+- **En Windows:** Haz doble clic en el archivo `run_app.bat`.
+
+### 5. Inicializar la Base de Datos
+Al abrir el sistema por primera vez en `http://localhost:8000`:
+- Ve a la sección **⚙️ Diagnóstico DB** y presiona el botón:  
+  > **⚡ Inicializar / Cargar Datos Semilla**  
+  
+El sistema creará automáticamente la base de datos `clinica_amor_animal`, las 7 tablas con sus restricciones de llaves foráneas y los datos iniciales de prueba. *(También se incluye el archivo `database.sql` por si se prefiere importar manualmente desde phpMyAdmin).*
+
+### 6. Acceso en el Navegador
+- **Sistema Web Principal:** `http://localhost:8000`
+- **Documentación Interactiva Swagger (API):** `http://localhost:8000/docs`
 
 ---
 
