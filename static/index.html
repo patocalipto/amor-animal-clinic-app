@@ -1,0 +1,1750 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐾 Clínica Veterinaria Amor Animal · Sistema Integral</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        @media print {
+            body * { visibility: hidden; }
+            #modalCarnetContent, #modalCarnetContent * { visibility: visible; }
+            #modalCarnetContent { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans flex h-screen overflow-hidden">
+
+    <!-- ============================================================================== -->
+    <!-- BARRA LATERAL (SIDEBAR) -->
+    <!-- ============================================================================== -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 border-r border-slate-800 transition-all duration-300 z-30">
+        <!-- Logo y Nombre -->
+        <div class="h-20 flex items-center px-6 gap-3 border-b border-slate-800/80 bg-slate-950/40">
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-teal-500 to-emerald-400 flex items-center justify-center text-white text-2xl shadow-lg shadow-teal-500/20">
+                🐾
+            </div>
+            <div>
+                <h1 class="font-extrabold text-white text-lg tracking-tight leading-none">Amor Animal</h1>
+                <span class="text-xs text-teal-400 font-medium">Clínica Veterinaria</span>
+            </div>
+        </div>
+
+        <!-- Estado de Conexión a Base de Datos -->
+        <div class="px-5 py-3 border-b border-slate-800/60 bg-slate-900/50">
+            <div class="flex items-center justify-between text-xs font-semibold" id="dbStatusBadge">
+                <span class="flex items-center gap-2 text-slate-400">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    MySQL (XAMPP)
+                </span>
+                <span class="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">En línea</span>
+            </div>
+        </div>
+
+        <!-- Menú de Navegación -->
+        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto custom-scrollbar">
+            <button onclick="cambiarModulo('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition-colors bg-teal-500/10 text-teal-400 border border-teal-500/20">
+                <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                <span>Dashboard General</span>
+            </button>
+
+            <button onclick="cambiarModulo('propietarios')" id="nav-propietarios" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800/60 hover:text-white text-slate-400">
+                <i class="fa-solid fa-users w-5 text-center"></i>
+                <span>Propietarios y Roles</span>
+            </button>
+
+            <button onclick="cambiarModulo('pacientes')" id="nav-pacientes" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800/60 hover:text-white text-slate-400">
+                <i class="fa-solid fa-dog w-5 text-center"></i>
+                <span>Pacientes (Mascotas)</span>
+            </button>
+
+            <button onclick="cambiarModulo('citas')" id="nav-citas" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800/60 hover:text-white text-slate-400">
+                <i class="fa-solid fa-calendar-check w-5 text-center"></i>
+                <span>Citas y Agenda</span>
+            </button>
+
+            <button onclick="cambiarModulo('veterinario')" id="nav-veterinario" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800/60 hover:text-white text-slate-400">
+                <i class="fa-solid fa-user-doctor w-5 text-center"></i>
+                <span>Médico e Historial</span>
+            </button>
+
+            <button onclick="cambiarModulo('servicios')" id="nav-servicios" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800/60 hover:text-white text-slate-400">
+                <i class="fa-solid fa-tags w-5 text-center"></i>
+                <span>Servicios Clínicos</span>
+            </button>
+
+            <button onclick="cambiarModulo('reportes')" id="nav-reportes" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800/60 hover:text-white text-slate-400">
+                <i class="fa-solid fa-table-list w-5 text-center"></i>
+                <span>Reporte Maestro (JOIN)</span>
+            </button>
+
+            <button onclick="cambiarModulo('sistema')" id="nav-sistema" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800/60 hover:text-white text-slate-400">
+                <i class="fa-solid fa-database w-5 text-center"></i>
+                <span>Diagnóstico DB</span>
+            </button>
+        </nav>
+
+        <!-- Pie de la barra lateral -->
+        <div class="p-4 border-t border-slate-800/80 bg-slate-950/50 flex flex-col gap-2">
+            <a href="/docs" target="_blank" class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold transition border border-slate-700">
+                <i class="fa-solid fa-code"></i> Documentación API (/docs)
+            </a>
+            <div class="text-[11px] text-center text-slate-500">
+                v2.0 · FastAPI + MySQL
+            </div>
+        </div>
+    </aside>
+
+    <!-- ============================================================================== -->
+    <!-- ÁREA PRINCIPAL DE CONTENIDO -->
+    <!-- ============================================================================== -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-100/70">
+        
+        <!-- BARRA SUPERIOR (HEADER) -->
+        <header class="h-20 bg-white border-b border-slate-200/80 px-8 flex items-center justify-between shadow-xs z-20">
+            <div>
+                <h2 id="sectionTitle" class="text-xl font-bold text-slate-900 leading-tight">Dashboard General</h2>
+                <p id="sectionSubtitle" class="text-xs text-slate-500">Resumen operativo y métricas en tiempo real</p>
+            </div>
+
+            <!-- Botones de Acción Rápida -->
+            <div class="flex items-center gap-3">
+                <button onclick="abrirModalCita()" class="px-4 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-teal-500/20 transition-all flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Agendar Cita</span>
+                </button>
+                <button onclick="abrirModalPaciente()" class="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-paw"></i>
+                    <span>Nuevo Paciente</span>
+                </button>
+                <button onclick="abrirModalPropietario()" class="px-3.5 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-user-plus text-slate-500"></i>
+                    <span>Registrar Dueño</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- CONTENIDO DINÁMICO POR MÓDULO -->
+        <div class="flex-1 overflow-y-auto p-8 custom-scrollbar space-y-6">
+
+            <!-- ---------------------------------------------------------------------- -->
+            <!-- 1. MÓDULO: DASHBOARD -->
+            <!-- ---------------------------------------------------------------------- -->
+            <section id="modulo-dashboard" class="space-y-6">
+                <!-- Tarjetas de Métricas (KPIs) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-medium text-slate-500">Propietarios</span>
+                            <h3 id="kpi-propietarios" class="text-2xl font-black text-slate-900">0</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-paw"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-medium text-slate-500">Pacientes</span>
+                            <h3 id="kpi-mascotas" class="text-2xl font-black text-slate-900">0</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-calendar-clock"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-medium text-slate-500">Citas Activas</span>
+                            <h3 id="kpi-citas" class="text-2xl font-black text-slate-900">0</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-stethoscope"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-medium text-slate-500">Historiales Médicos</span>
+                            <h3 id="kpi-consultas" class="text-2xl font-black text-slate-900">0</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-medium text-slate-500">Horarios Libres</span>
+                            <h3 id="kpi-horarios" class="text-2xl font-black text-slate-900">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráficas y Próximas Citas -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Gráfica de Especies -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+                        <h4 class="font-bold text-slate-900 text-sm mb-4 flex items-center justify-between">
+                            <span>Distribución por Especie</span>
+                            <i class="fa-solid fa-chart-pie text-slate-400"></i>
+                        </h4>
+                        <div class="h-56 relative flex items-center justify-center">
+                            <canvas id="chartEspecies"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Agenda de Próximas Citas (Ocupa 2 columnas) -->
+                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                                    <i class="fa-solid fa-calendar-day text-teal-500"></i>
+                                    <span>Próximas Citas en Agenda</span>
+                                </h4>
+                                <button onclick="cambiarModulo('citas')" class="text-xs text-teal-600 hover:text-teal-700 font-semibold">Ver agenda completa →</button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="text-slate-400 uppercase bg-slate-50 border-b border-slate-100 font-semibold">
+                                        <tr>
+                                            <th class="py-2.5 px-3">Fecha y Hora</th>
+                                            <th class="py-2.5 px-3">Paciente</th>
+                                            <th class="py-2.5 px-3">Propietario</th>
+                                            <th class="py-2.5 px-3">Servicio</th>
+                                            <th class="py-2.5 px-3">Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tablaDashboardCitas" class="divide-y divide-slate-100 text-slate-700">
+                                        <!-- Citas dinámicas -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ---------------------------------------------------------------------- -->
+            <!-- 2. MÓDULO: PROPIETARIOS Y ROLES -->
+            <!-- ---------------------------------------------------------------------- -->
+            <section id="modulo-propietarios" class="hidden space-y-6">
+                <!-- Filtros y Barra de Búsqueda -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-3 flex-1 min-w-[280px]">
+                        <div class="relative w-full max-w-md">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                            <input type="text" id="buscarPropietarioInput" oninput="filtrarPropietarios()" placeholder="Buscar por nombre, correo o teléfono..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-teal-500 focus:bg-white transition">
+                        </div>
+                        <select id="filtroRolSelect" onchange="cargarPropietarios()" class="bg-slate-50 border border-slate-200 rounded-xl text-xs px-3 py-2 text-slate-700 focus:outline-none focus:border-teal-500">
+                            <option value="">Todos los Roles</option>
+                        </select>
+                    </div>
+                    <button onclick="abrirModalPropietario()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-2">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>Registrar Nuevo Usuario / Propietario</span>
+                    </button>
+                </div>
+
+                <!-- Tabla de Propietarios -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 border-b border-slate-200/70 text-slate-500 uppercase font-semibold">
+                                <tr>
+                                    <th class="py-3 px-4">ID</th>
+                                    <th class="py-3 px-4">Nombre Completo</th>
+                                    <th class="py-3 px-4">Contacto</th>
+                                    <th class="py-3 px-4">Correo Electrónico</th>
+                                    <th class="py-3 px-4">Rol Asignado</th>
+                                    <th class="py-3 px-4">Mascotas</th>
+                                    <th class="py-3 px-4 text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaPropietarios" class="divide-y divide-slate-100 text-slate-700">
+                                <!-- Filas dinámicas -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ---------------------------------------------------------------------- -->
+            <!-- 3. MÓDULO: PACIENTES (MASCOTAS) -->
+            <!-- ---------------------------------------------------------------------- -->
+            <section id="modulo-pacientes" class="hidden space-y-6">
+                <!-- Filtros por especie y búsqueda -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-3 flex-1">
+                        <div class="relative w-full max-w-sm">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                            <input type="text" id="buscarPacienteInput" oninput="filtrarPacientes()" placeholder="Buscar mascota o dueño..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-teal-500 focus:bg-white transition">
+                        </div>
+                        <div class="flex items-center gap-1.5 overflow-x-auto py-1">
+                            <button onclick="filtrarEspecie('Todas')" class="btn-esp active px-3 py-1.5 rounded-lg text-xs font-bold bg-teal-600 text-white transition">Todas</button>
+                            <button onclick="filtrarEspecie('Perro')" class="btn-esp px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🐶 Perros</button>
+                            <button onclick="filtrarEspecie('Gato')" class="btn-esp px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🐱 Gatos</button>
+                            <button onclick="filtrarEspecie('Ave')" class="btn-esp px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🦜 Aves</button>
+                            <button onclick="filtrarEspecie('Conejo')" class="btn-esp px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🐰 Conejos</button>
+                        </div>
+                    </div>
+                    <button onclick="abrirModalPaciente()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-2">
+                        <i class="fa-solid fa-paw"></i>
+                        <span>Registrar Nuevo Paciente</span>
+                    </button>
+                </div>
+
+                <!-- Grid de Tarjetas de Pacientes -->
+                <div id="gridPacientes" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                    <!-- Tarjetas dinámicas de mascotas -->
+                </div>
+            </section>
+
+            <!-- ---------------------------------------------------------------------- -->
+            <!-- 4. MÓDULO: CITAS Y AGENDA -->
+            <!-- ---------------------------------------------------------------------- -->
+            <section id="modulo-citas" class="hidden space-y-6">
+                <!-- Filtros de citas -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <label class="text-xs font-semibold text-slate-500">Filtrar por Estado:</label>
+                        <select id="filtroEstadoCita" onchange="cargarCitas()" class="bg-slate-50 border border-slate-200 rounded-xl text-xs px-3 py-2 text-slate-700 focus:outline-none focus:border-teal-500 font-medium">
+                            <option value="Todas">Todas las Citas</option>
+                            <option value="Programada">Programadas</option>
+                            <option value="Confirmada">Confirmadas</option>
+                            <option value="Atendida">Atendidas</option>
+                            <option value="Cancelada">Canceladas</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="abrirModalHorario()" class="px-3.5 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-slate-500"></i>
+                            <span>Abrir Nuevo Turno</span>
+                        </button>
+                        <button onclick="abrirModalCita()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-plus"></i>
+                            <span>Agendar Nueva Cita</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabla de Citas -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 border-b border-slate-200/70 text-slate-500 uppercase font-semibold">
+                                <tr>
+                                    <th class="py-3 px-4">ID</th>
+                                    <th class="py-3 px-4">Fecha y Turno</th>
+                                    <th class="py-3 px-4">Paciente</th>
+                                    <th class="py-3 px-4">Propietario Responsable</th>
+                                    <th class="py-3 px-4">Servicio Clínico</th>
+                                    <th class="py-3 px-4">Costo</th>
+                                    <th class="py-3 px-4">Estado</th>
+                                    <th class="py-3 px-4 text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaCitas" class="divide-y divide-slate-100 text-slate-700">
+                                <!-- Filas dinámicas -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ---------------------------------------------------------------------- -->
+            <!-- 5. MÓDULO: MÉDICO VETERINARIO & HISTORIAL CLÍNICO -->
+            <!-- ---------------------------------------------------------------------- -->
+            <section id="modulo-veterinario" class="hidden space-y-6">
+                <!-- Selector de Paciente para ver su expediente -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex-1 min-w-[280px]">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Seleccionar Paciente para Consulta Médica o Expediente:</label>
+                        <select id="selectPacienteHistorial" onchange="cargarHistorialPaciente()" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-xs px-3 py-2.5 text-slate-800 font-semibold focus:outline-none focus:border-teal-500">
+                            <!-- Opciones dinámicas -->
+                        </select>
+                    </div>
+                    <button onclick="abrirModalConsultaDirecta()" class="px-4 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-xs cursor-pointer">
+                        <i class="fa-solid fa-stethoscope"></i>
+                        <span>Registrar Atención Médica</span>
+                    </button>
+                </div>
+
+                <!-- Línea de Tiempo del Historial Médico -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                        <div>
+                            <h3 id="historialTitulo" class="text-base font-bold text-slate-900">Expediente Clínico Digital</h3>
+                            <p id="historialSubtitulo" class="text-xs text-slate-500">Selecciona un paciente para ver todas sus atenciones previas</p>
+                        </div>
+                        <button onclick="imprimirCarnet()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition flex items-center gap-2">
+                            <i class="fa-solid fa-print"></i>
+                            <span>Imprimir Ficha</span>
+                        </button>
+                    </div>
+
+                    <div id="timelineHistorial" class="space-y-4">
+                        <!-- Consultas médicas en timeline -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ---------------------------------------------------------------------- -->
+            <!-- 6. MÓDULO: SERVICIOS CLÍNICOS -->
+            <!-- ---------------------------------------------------------------------- -->
+            <section id="modulo-servicios" class="hidden space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">Catálogo de Procedimientos y Tarifas</h3>
+                        <p class="text-xs text-slate-500">Servicios médicos y estéticos disponibles en la clínica</p>
+                    </div>
+                    <button onclick="abrirModalServicio()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Nuevo Servicio</span>
+                    </button>
+                </div>
+
+                <div id="gridServicios" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <!-- Servicios dinámicos -->
+                </div>
+            </section>
+
+            <!-- ---------------------------------------------------------------------- -->
+            <!-- 7. MÓDULO: REPORTE MAESTRO (JOIN MULTI-TABLA) -->
+            <!-- ---------------------------------------------------------------------- -->
+            <section id="modulo-reportes" class="hidden space-y-6">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">Consulta Multitabla Maestra (JOIN Relacional)</h3>
+                        <p class="text-xs text-slate-500">Consolidado que demuestra la integridad referencial entre Mascotas, Usuarios y Citas</p>
+                    </div>
+                    <button onclick="descargarReporteCSV()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center gap-2">
+                        <i class="fa-solid fa-file-csv"></i>
+                        <span>Exportar a CSV</span>
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 border-b border-slate-200/70 text-slate-500 uppercase font-semibold">
+                                <tr>
+                                    <th class="py-3 px-4">ID Paciente</th>
+                                    <th class="py-3 px-4">Mascota</th>
+                                    <th class="py-3 px-4">Especie</th>
+                                    <th class="py-3 px-4">Raza</th>
+                                    <th class="py-3 px-4">Peso</th>
+                                    <th class="py-3 px-4">Propietario Responsable</th>
+                                    <th class="py-3 px-4">Teléfono</th>
+                                    <th class="py-3 px-4">Correo</th>
+                                    <th class="py-3 px-4 text-center">Citas Totales</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaMasterJoin" class="divide-y divide-slate-100 text-slate-700">
+                                <!-- Filas dinámicas -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ---------------------------------------------------------------------- -->
+            <!-- 8. MÓDULO: DIAGNÓSTICO DEL SISTEMA Y BASE DE DATOS -->
+            <!-- ---------------------------------------------------------------------- -->
+            <section id="modulo-sistema" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900">Estado de las 7 Tablas en MySQL</h3>
+                            <p class="text-xs text-slate-500">Inspección de integridad de llaves foráneas y registros activos</p>
+                        </div>
+                        <button onclick="inicializarBDConConfirmacion()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition flex items-center gap-2">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>Inicializar / Cargar Datos Semilla</span>
+                        </button>
+                    </div>
+
+                    <!-- Métricas de las 7 tablas -->
+                    <div id="gridTablasDiagnostico" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+                        <!-- Conteo de cada tabla -->
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- ============================================================================== -->
+    <!-- MODALES INTERACTIVOS (POPUPS MODERNOS) -->
+    <!-- ============================================================================== -->
+
+    <!-- 1. Modal: Nuevo Propietario / Usuario -->
+    <div id="modalPropietario" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus text-teal-600"></i>
+                    <span>Registrar Nuevo Usuario / Propietario</span>
+                </h3>
+                <button onclick="cerrarModal('modalPropietario')" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+            </div>
+            <form id="formNuevoPropietario" onsubmit="guardarPropietario(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Nombre Completo *</label>
+                    <input type="text" id="propNombre" required placeholder="Ej: Carlos Fuentes Hernández" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Teléfono *</label>
+                        <input type="text" id="propTelefono" required placeholder="Ej: 555-0301" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Rol en el Sistema *</label>
+                        <select id="propRol" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white">
+                            <!-- Opciones de roles dinámicas -->
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Correo Electrónico (Único) *</label>
+                        <input type="email" id="propCorreo" required placeholder="correo@ejemplo.com" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Contraseña de Acceso *</label>
+                        <input type="password" id="propPassword" required value="cliente123" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="cerrarModal('modalPropietario')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-xs">Guardar en Base de Datos</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Modal: Nuevo Paciente (Mascota) -->
+    <div id="modalPaciente" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-paw text-teal-600"></i>
+                    <span>Registrar Nuevo Paciente (Mascota)</span>
+                </h3>
+                <button onclick="cerrarModal('modalPaciente')" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+            </div>
+            <form id="formNuevoPaciente" onsubmit="guardarPaciente(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Propietario Responsable (Llave Foránea) *</label>
+                    <select id="mascotaDueno" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white font-medium">
+                        <!-- Opciones de dueños dinámicas -->
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Nombre de la Mascota *</label>
+                        <input type="text" id="mascotaNombre" required placeholder="Ej: Max, Luna, Toby" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Especie *</label>
+                        <select id="mascotaEspecie" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white">
+                            <option value="Perro">Perro</option>
+                            <option value="Gato">Gato</option>
+                            <option value="Ave">Ave</option>
+                            <option value="Conejo">Conejo</option>
+                            <option value="Reptil">Reptil</option>
+                            <option value="Roedor">Roedor</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Raza</label>
+                        <input type="text" id="mascotaRaza" placeholder="Ej: Golden Retriever" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Edad (años)</label>
+                        <input type="number" id="mascotaEdad" min="0" max="40" value="2" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Peso (kg) *</label>
+                        <input type="number" id="mascotaPeso" step="0.01" min="0.01" max="250" value="5.0" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="cerrarModal('modalPaciente')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-xs">Guardar Paciente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. Modal: Agendar Cita -->
+    <div id="modalCita" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-check text-teal-600"></i>
+                    <span>Agendar Cita Médica</span>
+                </h3>
+                <button onclick="cerrarModal('modalCita')" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+            </div>
+            <form id="formNuevaCita" onsubmit="guardarCita(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">1. Seleccionar Paciente *</label>
+                    <select id="citaPaciente" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white font-medium">
+                        <!-- Opciones de mascotas -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">2. Servicio Clínico *</label>
+                    <select id="citaServicio" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white font-medium">
+                        <!-- Opciones de servicios con precio -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">3. Turno / Horario Disponible *</label>
+                    <select id="citaHorario" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white font-medium">
+                        <!-- Opciones de horarios disponibles -->
+                    </select>
+                    <p class="text-[11px] text-slate-400 mt-1">💡 Al confirmar, este horario se marcará automáticamente como 'Ocupado'.</p>
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="cerrarModal('modalCita')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-xs">Confirmar y Agendar Cita</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 4. Modal: Registrar Consulta Médica (Historial Clínico) -->
+    <div id="modalConsulta" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-stethoscope text-teal-600"></i>
+                    <span>Atención Clínica e Historial Médico</span>
+                </h3>
+                <button onclick="cerrarModal('modalConsulta')" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+            </div>
+            <form id="formConsultaMedica" onsubmit="guardarConsultaMedica(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Cita Asociada (Llave Foránea) *</label>
+                    <select id="consultaCitaSelect" required onchange="actualizarDatosPacienteDesdeCita()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white font-semibold">
+                        <!-- Citas pendientes o atendidas -->
+                    </select>
+                </div>
+
+                <div class="p-3 bg-teal-50/70 border border-teal-100 rounded-xl">
+                    <span class="block font-bold text-teal-900 text-xs mb-2">🩺 Constantes Vitales</span>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-medium text-slate-700 mb-1">Peso Actual (kg) *</label>
+                            <input type="number" id="consultaPeso" step="0.01" min="0.01" max="250" required class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-teal-500">
+                        </div>
+                        <div>
+                            <label class="block font-medium text-slate-700 mb-1">Temperatura Corporal (°C) *</label>
+                            <input type="number" id="consultaTemp" step="0.1" min="30" max="45" value="38.5" required class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-teal-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Síntomas y Anamnesis *</label>
+                    <textarea id="consultaSintomas" required rows="2" placeholder="Motivo de la consulta y síntomas referidos por el propietario..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white"></textarea>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Diagnóstico Médico Veterinario *</label>
+                    <textarea id="consultaDiagnostico" required rows="2" placeholder="Diagnóstico definitivo o presuntivo..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white"></textarea>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Tratamiento y Prescripción Médica *</label>
+                    <textarea id="consultaTratamiento" required rows="3" placeholder="Procedimientos aplicados en clínica, medicamentos recetados y dosificación..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="cerrarModal('modalConsulta')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-xs">Guardar en Historial Clínico</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 5. Modal: Abrir Horario -->
+    <div id="modalHorario" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-clock text-teal-600"></i>
+                    <span>Abrir Nueva Franja de Horario</span>
+                </h3>
+                <button onclick="cerrarModal('modalHorario')" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+            </div>
+            <form id="formNuevoHorario" onsubmit="guardarHorario(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Fecha de Atención *</label>
+                    <input type="date" id="horarioFecha" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Hora de Inicio *</label>
+                    <input type="time" id="horarioHora" required value="09:00" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white">
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="cerrarModal('modalHorario')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-xs">Guardar Horario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 6. Modal: Nuevo Servicio -->
+    <div id="modalServicio" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-tag text-teal-600"></i>
+                    <span>Nuevo Servicio Clínico</span>
+                </h3>
+                <button onclick="cerrarModal('modalServicio')" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+            </div>
+            <form id="formNuevoServicio" onsubmit="guardarServicio(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Nombre del Servicio *</label>
+                    <input type="text" id="servicioNombre" required placeholder="Ej: Ecografía Abdominal" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Costo ($) *</label>
+                    <input type="number" id="servicioCosto" step="0.5" min="10" required value="350.0" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Descripción</label>
+                    <textarea id="servicioDesc" rows="2" placeholder="Detalles del procedimiento..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="cerrarModal('modalServicio')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-xs">Guardar Servicio</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 7. Modal: Carnet Digital del Paciente -->
+    <div id="modalCarnet" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
+        <div id="modalCarnetContent" class="bg-white rounded-3xl max-w-lg w-full p-8 shadow-2xl border border-slate-200 relative">
+            <button onclick="cerrarModal('modalCarnet')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+            <div class="text-center pb-4 border-b border-slate-100">
+                <div class="w-16 h-16 rounded-2xl bg-teal-500/10 text-teal-600 mx-auto flex items-center justify-center text-3xl mb-3 shadow-inner">
+                    🐾
+                </div>
+                <h3 id="carnetMascotaNombre" class="text-2xl font-black text-slate-900">Max</h3>
+                <span id="carnetMascotaEspecie" class="px-3 py-1 bg-teal-50 text-teal-700 font-bold rounded-full text-xs">Perro · Golden Retriever</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 my-6 text-xs">
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                    <span class="text-slate-400 block mb-0.5">Edad Aproximada</span>
+                    <strong id="carnetMascotaEdad" class="text-slate-800 text-sm">4 años</strong>
+                </div>
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                    <span class="text-slate-400 block mb-0.5">Peso Registrado</span>
+                    <strong id="carnetMascotaPeso" class="text-slate-800 text-sm">30.5 kg</strong>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 text-white p-5 rounded-2xl space-y-2 text-xs">
+                <span class="text-teal-400 font-bold uppercase tracking-wider text-[10px] block">Propietario Responsable</span>
+                <p id="carnetDuenoNombre" class="text-sm font-bold">Carlos Fuentes</p>
+                <div class="flex items-center justify-between text-slate-300 pt-1">
+                    <span id="carnetDuenoTel">📞 555-0301</span>
+                    <span id="carnetDuenoCorreo">📧 carlos@correo.com</span>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-2">
+                <button onclick="window.print()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-2">
+                    <i class="fa-solid fa-print"></i> Imprimir Ficha
+                </button>
+                <button onclick="cerrarModal('modalCarnet')" class="px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================================== -->
+    <!-- LOGICA FRONTEND JAVASCRIPT -->
+    <!-- ============================================================================== -->
+    <script>
+        // Variables de estado
+        let listaPacientesGlobal = [];
+        let listaPropietariosGlobal = [];
+        let listaCitasGlobal = [];
+        let chartEspeciesInstance = null;
+
+        // Inicialización al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            verificarConexion();
+            cargarDashboard();
+            cargarRolesEnSelect();
+            // Poner fecha de hoy por defecto en el input de horario
+            document.getElementById('horarioFecha').value = new Date().toISOString().split('T')[0];
+        });
+
+        // Verificación de conexión MySQL
+        async function verificarConexion() {
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+                const badge = document.getElementById('dbStatusBadge');
+                if (data.conectado) {
+                    badge.innerHTML = `
+                        <span class="flex items-center gap-2 text-slate-400">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            MySQL (XAMPP)
+                        </span>
+                        <span class="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-bold">En línea</span>
+                    `;
+                } else {
+                    badge.innerHTML = `
+                        <span class="flex items-center gap-2 text-slate-400">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                            MySQL (XAMPP)
+                        </span>
+                        <span class="text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20 font-bold">Desconectado</span>
+                    `;
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'MySQL no responde',
+                        text: 'Verifica que el servicio MySQL en tu panel de control de XAMPP esté en "Running".',
+                        confirmButtonColor: '#0d9488'
+                    });
+                }
+            } catch (err) {
+                console.error("Error al checar conexión:", err);
+            }
+        }
+
+        // Cambio de pestaña / módulo
+        function cambiarModulo(id) {
+            document.querySelectorAll('main section').forEach(sec => sec.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                btn.classList.remove('bg-teal-500/10', 'text-teal-400', 'border', 'border-teal-500/20', 'font-semibold');
+                btn.classList.add('text-slate-400', 'font-medium');
+            });
+
+            const modulo = document.getElementById(`modulo-${id}`);
+            const navBtn = document.getElementById(`nav-${id}`);
+            if (modulo) modulo.classList.remove('hidden');
+            if (navBtn) {
+                navBtn.classList.add('bg-teal-500/10', 'text-teal-400', 'border', 'border-teal-500/20', 'font-semibold');
+                navBtn.classList.remove('text-slate-400', 'font-medium');
+            }
+
+            // Títulos dinámicos en header
+            const titulos = {
+                'dashboard': ['Dashboard General', 'Resumen operativo y métricas en tiempo real'],
+                'propietarios': ['Directorio de Propietarios y Roles', 'Gestión de clientes y personal médico con integridad referencial'],
+                'pacientes': ['Gestión de Pacientes (Mascotas)', 'Expedientes clínicos y carnet digital de identificación'],
+                'citas': ['Control de Citas y Horarios', 'Agenda de turnos y vinculación con servicios clínicos'],
+                'veterinario': ['Módulo del Médico Veterinario', 'Registro de consultas, signos vitales y tratamientos'],
+                'servicios': ['Catálogo de Servicios Clínicos', 'Tarifas y duraciones de los procedimientos'],
+                'reportes': ['Reporte Maestro (JOIN Multitabla)', 'Consulta combinada entre Mascotas, Propietarios y Citas'],
+                'sistema': ['Diagnóstico de la Base de Datos', 'Monitoreo de registros en las 7 tablas de MySQL']
+            };
+
+            if (titulos[id]) {
+                document.getElementById('sectionTitle').innerText = titulos[id][0];
+                document.getElementById('sectionSubtitle').innerText = titulos[id][1];
+            }
+
+            // Cargar datos correspondientes
+            if (id === 'dashboard') cargarDashboard();
+            if (id === 'propietarios') cargarPropietarios();
+            if (id === 'pacientes') cargarPacientes();
+            if (id === 'citas') cargarCitas();
+            if (id === 'veterinario') cargarVeterinario();
+            if (id === 'servicios') cargarServicios();
+            if (id === 'reportes') cargarReporteMaster();
+            if (id === 'sistema') cargarDiagnostico();
+        }
+
+        // ==============================================================================
+        // 1. CARGA DEL DASHBOARD
+        // ==============================================================================
+        async function cargarDashboard() {
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+                if (data.metricas) {
+                    document.getElementById('kpi-propietarios').innerText = data.metricas.total_propietarios || 0;
+                    document.getElementById('kpi-mascotas').innerText = data.metricas.total_mascotas || 0;
+                    document.getElementById('kpi-citas').innerText = data.metricas.citas_pendientes || 0;
+                    document.getElementById('kpi-consultas').innerText = data.metricas.total_consultas || 0;
+                    document.getElementById('kpi-horarios').innerText = data.metricas.horarios_disponibles || 0;
+                }
+
+                // Cargar citas próximas
+                const resCitas = await fetch('/api/citas');
+                const citas = await resCitas.json();
+                const tbody = document.getElementById('tablaDashboardCitas');
+                tbody.innerHTML = '';
+                
+                if (citas.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-slate-400">No hay citas registradas</td></tr>';
+                } else {
+                    citas.slice(0, 5).forEach(c => {
+                        const badgeColor = c.estado_cita === 'Programada' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                           c.estado_cita === 'Confirmada' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                           c.estado_cita === 'Atendida' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                           'bg-rose-50 text-rose-700 border-rose-200';
+                        tbody.innerHTML += `
+                            <tr class="hover:bg-slate-50/70 transition">
+                                <td class="py-2.5 px-3 font-semibold text-slate-900">${c.fecha} <span class="text-slate-400 text-[11px] font-normal">${c.hora_inicio}</span></td>
+                                <td class="py-2.5 px-3 font-bold text-teal-700">${c.nombre_mascota} <span class="text-slate-400 font-normal">(${c.especie})</span></td>
+                                <td class="py-2.5 px-3">${c.nombre_propietario}</td>
+                                <td class="py-2.5 px-3">${c.nombre_servicio}</td>
+                                <td class="py-2.5 px-3">
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${badgeColor}">${c.estado_cita}</span>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                // Generar gráfica de especies
+                const resMascotas = await fetch('/api/mascotas');
+                const mascotas = await resMascotas.json();
+                const conteoEspecies = {};
+                mascotas.forEach(m => {
+                    conteoEspecies[m.especie] = (conteoEspecies[m.especie] || 0) + 1;
+                });
+
+                const ctx = document.getElementById('chartEspecies').getContext('2d');
+                if (chartEspeciesInstance) chartEspeciesInstance.destroy();
+                chartEspeciesInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(conteoEspecies),
+                        datasets: [{
+                            data: Object.values(conteoEspecies),
+                            backgroundColor: ['#0d9488', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b'],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
+                        }
+                    }
+                });
+
+            } catch (err) {
+                console.error("Error al cargar dashboard:", err);
+            }
+        }
+
+        // ==============================================================================
+        // 2. PROPIETARIOS Y ROLES
+        // ==============================================================================
+        async function cargarRolesEnSelect() {
+            try {
+                const res = await fetch('/api/roles');
+                const roles = await res.json();
+                const selectRol = document.getElementById('propRol');
+                const selectFiltro = document.getElementById('filtroRolSelect');
+                selectRol.innerHTML = '';
+                selectFiltro.innerHTML = '<option value="">Todos los Roles</option>';
+                roles.forEach(r => {
+                    selectRol.innerHTML += `<option value="${r.id_rol}" ${r.id_rol === 3 ? 'selected' : ''}>${r.nombre_rol}</option>`;
+                    selectFiltro.innerHTML += `<option value="${r.id_rol}">${r.nombre_rol}</option>`;
+                });
+            } catch (err) {
+                console.error("Error al cargar roles:", err);
+            }
+        }
+
+        async function cargarPropietarios() {
+            try {
+                const rolId = document.getElementById('filtroRolSelect').value;
+                let url = '/api/usuarios';
+                if (rolId) url += `?rol_id=${rolId}`;
+                const res = await fetch(url);
+                listaPropietariosGlobal = await res.json();
+                renderPropietarios(listaPropietariosGlobal);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderPropietarios(lista) {
+            const tbody = document.getElementById('tablaPropietarios');
+            tbody.innerHTML = '';
+            if (lista.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="py-6 text-center text-slate-400">No se encontraron usuarios</td></tr>';
+                return;
+            }
+            lista.forEach(u => {
+                const badgeColor = u.id_rol === 1 ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                                   u.id_rol === 2 ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                   'bg-teal-50 text-teal-700 border-teal-200';
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="py-3 px-4 font-mono text-slate-400">#${u.id_usuario}</td>
+                        <td class="py-3 px-4 font-bold text-slate-900">${u.nombre}</td>
+                        <td class="py-3 px-4 font-medium text-slate-600">📞 ${u.telefono}</td>
+                        <td class="py-3 px-4 text-slate-500">📧 ${u.correo}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeColor}">${u.nombre_rol}</span>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center gap-1 font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
+                                <i class="fa-solid fa-paw text-[10px] text-teal-600"></i> ${u.total_mascotas}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="abrirModalPacienteConDueño(${u.id_usuario})" title="Registrar mascota para este dueño" class="text-teal-600 hover:text-teal-800 bg-teal-50 p-2 rounded-lg transition">
+                                <i class="fa-solid fa-plus text-xs"></i> Mascota
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filtrarPropietarios() {
+            const txt = document.getElementById('buscarPropietarioInput').value.toLowerCase();
+            const filtrados = listaPropietariosGlobal.filter(p => 
+                p.nombre.toLowerCase().includes(txt) ||
+                p.correo.toLowerCase().includes(txt) ||
+                p.telefono.includes(txt)
+            );
+            renderPropietarios(filtrados);
+        }
+
+        async function guardarPropietario(e) {
+            e.preventDefault();
+            const body = {
+                nombre: document.getElementById('propNombre').value,
+                telefono: document.getElementById('propTelefono').value,
+                correo: document.getElementById('propCorreo').value,
+                contrasena: document.getElementById('propPassword').value,
+                id_rol: parseInt(document.getElementById('propRol').value)
+            };
+
+            try {
+                const res = await fetch('/api/usuarios', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    cerrarModal('modalPropietario');
+                    Swal.fire({ icon: 'success', title: '¡Guardado!', text: data.message, timer: 1800, showConfirmButton: false });
+                    cargarPropietarios();
+                    cargarDashboard();
+                    document.getElementById('formNuevoPropietario').reset();
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.detail });
+                }
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'Error', text: err.message });
+            }
+        }
+
+        // ==============================================================================
+        // 3. PACIENTES (MASCOTAS)
+        // ==============================================================================
+        async function cargarPacientes() {
+            try {
+                const res = await fetch('/api/mascotas');
+                listaPacientesGlobal = await res.json();
+                renderPacientes(listaPacientesGlobal);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderPacientes(lista) {
+            const grid = document.getElementById('gridPacientes');
+            grid.innerHTML = '';
+            if (lista.length === 0) {
+                grid.innerHTML = '<div class="col-span-full py-12 text-center text-slate-400">No hay mascotas registradas</div>';
+                return;
+            }
+
+            lista.forEach(m => {
+                const icono = m.especie === 'Perro' ? '🐶' : m.especie === 'Gato' ? '🐱' : m.especie === 'Ave' ? '🦜' : m.especie === 'Conejo' ? '🐰' : '🐾';
+                grid.innerHTML += `
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group">
+                        <div>
+                            <div class="flex items-start justify-between mb-3">
+                                <div class="w-12 h-12 rounded-2xl bg-teal-50 text-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    ${icono}
+                                </div>
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">#${m.id_mascota}</span>
+                            </div>
+                            <h4 class="font-extrabold text-slate-900 text-base leading-tight">${m.nombre_mascota}</h4>
+                            <p class="text-xs text-teal-600 font-semibold mb-3">${m.especie} · <span class="text-slate-500 font-normal">${m.raza || 'Sin raza'}</span></p>
+                            
+                            <div class="grid grid-cols-2 gap-2 text-[11px] bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-slate-600 mb-3">
+                                <div><span class="text-slate-400 block text-[10px]">Edad:</span> <strong>${m.edad_aprox} años</strong></div>
+                                <div><span class="text-slate-400 block text-[10px]">Peso:</span> <strong>${m.peso} kg</strong></div>
+                            </div>
+
+                            <div class="text-[11px] text-slate-500 border-t border-slate-100 pt-2.5">
+                                <span class="text-[10px] text-slate-400 uppercase font-bold block">Propietario:</span>
+                                <strong class="text-slate-800">${m.nombre_propietario}</strong>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                            <button onclick="verCarnet(${m.id_mascota})" class="flex-1 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-id-card"></i> Carnet
+                            </button>
+                            <button onclick="irAHistorialDe(${m.id_mascota})" class="flex-1 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-stethoscope"></i> Historial
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function filtrarPacientes() {
+            const txt = document.getElementById('buscarPacienteInput').value.toLowerCase();
+            const filtrados = listaPacientesGlobal.filter(m => 
+                m.nombre_mascota.toLowerCase().includes(txt) || 
+                m.nombre_propietario.toLowerCase().includes(txt) ||
+                (m.raza && m.raza.toLowerCase().includes(txt))
+            );
+            renderPacientes(filtrados);
+        }
+
+        function filtrarEspecie(esp) {
+            document.querySelectorAll('.btn-esp').forEach(b => {
+                b.classList.remove('bg-teal-600', 'text-white', 'font-bold');
+                b.classList.add('bg-slate-100', 'text-slate-700', 'font-medium');
+            });
+            event.target.classList.add('bg-teal-600', 'text-white', 'font-bold');
+            event.target.classList.remove('bg-slate-100', 'text-slate-700');
+
+            if (esp === 'Todas') {
+                renderPacientes(listaPacientesGlobal);
+            } else {
+                renderPacientes(listaPacientesGlobal.filter(m => m.especie === esp));
+            }
+        }
+
+        async function guardarPaciente(e) {
+            e.preventDefault();
+            const body = {
+                nombre_mascota: document.getElementById('mascotaNombre').value,
+                especie: document.getElementById('mascotaEspecie').value,
+                raza: document.getElementById('mascotaRaza').value || "Criollo",
+                edad_aprox: parseInt(document.getElementById('mascotaEdad').value) || 0,
+                peso: parseFloat(document.getElementById('mascotaPeso').value) || 1.0,
+                id_usuario: parseInt(document.getElementById('mascotaDueno').value)
+            };
+
+            try {
+                const res = await fetch('/api/mascotas', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    cerrarModal('modalPaciente');
+                    Swal.fire({ icon: 'success', title: '¡Mascota Registrada!', text: data.message, timer: 1800, showConfirmButton: false });
+                    cargarPacientes();
+                    cargarDashboard();
+                    document.getElementById('formNuevoPaciente').reset();
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.detail });
+                }
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'Error', text: err.message });
+            }
+        }
+
+        function verCarnet(idMascota) {
+            const pet = listaPacientesGlobal.find(m => m.id_mascota === idMascota);
+            if (!pet) return;
+            document.getElementById('carnetMascotaNombre').innerText = pet.nombre_mascota;
+            document.getElementById('carnetMascotaEspecie').innerText = `${pet.especie} · ${pet.raza || 'Sin raza'}`;
+            document.getElementById('carnetMascotaEdad').innerText = `${pet.edad_aprox} años`;
+            document.getElementById('carnetMascotaPeso').innerText = `${pet.peso} kg`;
+            document.getElementById('carnetDuenoNombre').innerText = pet.nombre_propietario;
+            document.getElementById('carnetDuenoTel').innerText = `📞 ${pet.tel_propietario}`;
+            document.getElementById('carnetDuenoCorreo').innerText = `📧 ${pet.correo_propietario}`;
+            abrirModal('modalCarnet');
+        }
+
+        // ==============================================================================
+        // 4. CITAS Y AGENDA
+        // ==============================================================================
+        async function cargarCitas() {
+            try {
+                const estado = document.getElementById('filtroEstadoCita').value;
+                let url = '/api/citas';
+                if (estado && estado !== 'Todas') url += `?estado=${estado}`;
+                const res = await fetch(url);
+                listaCitasGlobal = await res.json();
+                renderCitas(listaCitasGlobal);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderCitas(lista) {
+            const tbody = document.getElementById('tablaCitas');
+            tbody.innerHTML = '';
+            if (lista.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="py-8 text-center text-slate-400">No hay citas con este criterio</td></tr>';
+                return;
+            }
+
+            lista.forEach(c => {
+                const badgeColor = c.estado_cita === 'Programada' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                   c.estado_cita === 'Confirmada' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                   c.estado_cita === 'Atendida' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                   'bg-rose-50 text-rose-700 border-rose-200';
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="py-3 px-4 font-mono text-slate-400">#${c.id_cita}</td>
+                        <td class="py-3 px-4 font-semibold text-slate-900">
+                            📅 ${c.fecha} <br>
+                            <span class="text-slate-400 font-normal">⏰ ${c.hora_inicio}</span>
+                        </td>
+                        <td class="py-3 px-4 font-bold text-teal-700">${c.nombre_mascota} <span class="text-slate-400 font-normal text-[11px]">(${c.especie})</span></td>
+                        <td class="py-3 px-4 font-medium">${c.nombre_propietario} <br><span class="text-slate-400 font-normal text-[11px]">📞 ${c.tel_propietario}</span></td>
+                        <td class="py-3 px-4 font-semibold">${c.nombre_servicio}</td>
+                        <td class="py-3 px-4 font-bold text-slate-900">$${c.costo.toFixed(2)}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeColor}">${c.estado_cita}</span>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <div class="flex items-center justify-center gap-1.5">
+                                ${c.estado_cita !== 'Atendida' ? `
+                                    <button onclick="atenderCitaEnConsulta(${c.id_cita})" title="Registrar consulta médica" class="bg-teal-500 hover:bg-teal-600 text-white px-2.5 py-1 rounded-lg text-xs font-bold transition">
+                                        🩺 Atender
+                                    </button>
+                                ` : ''}
+                                ${c.estado_cita === 'Programada' ? `
+                                    <button onclick="cambiarEstadoCita(${c.id_cita}, 'Confirmada')" title="Confirmar cita" class="bg-blue-50 hover:bg-blue-100 text-blue-700 px-2 py-1 rounded-lg text-xs font-bold transition">
+                                        ✓
+                                    </button>
+                                ` : ''}
+                                ${c.estado_cita !== 'Cancelada' && c.estado_cita !== 'Atendida' ? `
+                                    <button onclick="cambiarEstadoCita(${c.id_cita}, 'Cancelada')" title="Cancelar cita (libera el horario)" class="bg-rose-50 hover:bg-rose-100 text-rose-700 px-2 py-1 rounded-lg text-xs font-bold transition">
+                                        ✕
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function cambiarEstadoCita(idCita, nuevoEstado) {
+            try {
+                const res = await fetch(`/api/citas/${idCita}/estado`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nuevo_estado: nuevoEstado })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    Swal.fire({ icon: 'success', title: 'Actualizado', text: data.message, timer: 1400, showConfirmButton: false });
+                    cargarCitas();
+                    cargarDashboard();
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.detail });
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function guardarCita(e) {
+            e.preventDefault();
+            const body = {
+                id_mascota: parseInt(document.getElementById('citaPaciente').value),
+                id_servicio: parseInt(document.getElementById('citaServicio').value),
+                id_horario: parseInt(document.getElementById('citaHorario').value),
+                estado_cita: 'Programada'
+            };
+
+            try {
+                const res = await fetch('/api/citas', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    cerrarModal('modalCita');
+                    Swal.fire({ icon: 'success', title: '¡Cita Agendada!', text: data.message, timer: 1800, showConfirmButton: false });
+                    cargarCitas();
+                    cargarDashboard();
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.detail });
+                }
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'Error', text: err.message });
+            }
+        }
+
+        // ==============================================================================
+        // 5. MÉDICO VETERINARIO & HISTORIAL CLÍNICO
+        // ==============================================================================
+        async function cargarVeterinario() {
+            try {
+                const res = await fetch('/api/mascotas');
+                const pets = await res.json();
+                const select = document.getElementById('selectPacienteHistorial');
+                select.innerHTML = '<option value="">-- Elige un paciente para ver su historial --</option>';
+                pets.forEach(p => {
+                    select.innerHTML += `<option value="${p.id_mascota}">${p.nombre_mascota} (${p.especie}) · Dueño: ${p.nombre_propietario}</option>`;
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function irAHistorialDe(idMascota) {
+            cambiarModulo('veterinario');
+            setTimeout(() => {
+                document.getElementById('selectPacienteHistorial').value = idMascota;
+                cargarHistorialPaciente();
+            }, 100);
+        }
+
+        async function cargarHistorialPaciente() {
+            const idMascota = document.getElementById('selectPacienteHistorial').value;
+            const container = document.getElementById('timelineHistorial');
+            if (!idMascota) {
+                container.innerHTML = '<p class="text-xs text-slate-400 text-center py-6">Selecciona una mascota arriba para consultar su expediente médico.</p>';
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/historial/${idMascota}`);
+                const historial = await res.json();
+                container.innerHTML = '';
+
+                if (historial.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-8">
+                            <p class="text-slate-400 text-xs mb-3">Este paciente aún no tiene consultas médicas registradas en su historial.</p>
+                            <button onclick="abrirModalConsultaDirecta()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition">
+                                🩺 Registrar Primera Consulta
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                historial.forEach((h, index) => {
+                    container.innerHTML += `
+                        <div class="border border-slate-200/80 rounded-2xl p-5 bg-slate-50/50 hover:bg-white transition space-y-3">
+                            <div class="flex items-center justify-between border-b border-slate-200/60 pb-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center font-bold text-sm">
+                                        #${h.id_historial}
+                                    </div>
+                                    <div>
+                                        <h4 class="font-extrabold text-slate-900 text-sm">Consulta Médica: ${h.nombre_servicio}</h4>
+                                        <span class="text-[11px] text-slate-500 font-semibold">📅 ${h.fecha} a las ${h.hora_inicio} hrs</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3 text-xs bg-white px-3 py-1.5 rounded-xl border border-slate-200">
+                                    <span>⚖️ <strong>${h.peso_actual} kg</strong></span>
+                                    <span>🌡️ <strong>${h.temperatura} °C</strong></span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                                <div class="bg-white p-3 rounded-xl border border-slate-100">
+                                    <span class="font-bold text-slate-400 text-[10px] uppercase block mb-1">🔍 Síntomas / Anamnesis</span>
+                                    <p class="text-slate-700 font-medium">${h.sintomas || 'Sin detalles'}</p>
+                                </div>
+                                <div class="bg-white p-3 rounded-xl border border-slate-100">
+                                    <span class="font-bold text-teal-600 text-[10px] uppercase block mb-1">📌 Diagnóstico Clínico</span>
+                                    <p class="text-slate-900 font-semibold">${h.diagnostico}</p>
+                                </div>
+                                <div class="bg-white p-3 rounded-xl border border-slate-100">
+                                    <span class="font-bold text-indigo-600 text-[10px] uppercase block mb-1">💉 Tratamiento y Medicamentos</span>
+                                    <p class="text-slate-700">${h.tratamiento}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function atenderCitaEnConsulta(idCita) {
+            await abrirModalConsultaDirecta();
+            document.getElementById('consultaCitaSelect').value = idCita;
+            actualizarDatosPacienteDesdeCita();
+        }
+
+        async function abrirModalConsultaDirecta() {
+            try {
+                const resCitas = await fetch('/api/citas');
+                const citas = await resCitas.json();
+                const selectCitas = document.getElementById('consultaCitaSelect');
+                selectCitas.innerHTML = '';
+                
+                citas.forEach(c => {
+                    selectCitas.innerHTML += `
+                        <option value="${c.id_cita}" data-peso="${c.peso_mascota}">
+                            Cita #${c.id_cita} - ${c.nombre_mascota} (${c.nombre_servicio}) [${c.fecha} ${c.hora_inicio}] - Estado: ${c.estado_cita}
+                        </option>
+                    `;
+                });
+                actualizarDatosPacienteDesdeCita();
+                abrirModal('modalConsulta');
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function actualizarDatosPacienteDesdeCita() {
+            const select = document.getElementById('consultaCitaSelect');
+            const opt = select.options[select.selectedIndex];
+            if (opt) {
+                const peso = opt.getAttribute('data-peso');
+                if (peso) document.getElementById('consultaPeso').value = parseFloat(peso) || 5.0;
+            }
+        }
+
+        async function guardarConsultaMedica(e) {
+            e.preventDefault();
+            const body = {
+                id_cita: parseInt(document.getElementById('consultaCitaSelect').value),
+                peso_actual: parseFloat(document.getElementById('consultaPeso').value),
+                temperatura: parseFloat(document.getElementById('consultaTemp').value),
+                sintomas: document.getElementById('consultaSintomas').value,
+                diagnostico: document.getElementById('consultaDiagnostico').value,
+                tratamiento: document.getElementById('consultaTratamiento').value
+            };
+
+            try {
+                const res = await fetch('/api/historial', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    cerrarModal('modalConsulta');
+                    Swal.fire({ icon: 'success', title: '¡Consulta Registrada!', text: data.message, timer: 1800, showConfirmButton: false });
+                    cargarDashboard();
+                    cargarHistorialPaciente();
+                    document.getElementById('formConsultaMedica').reset();
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.detail });
+                }
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'Error', text: err.message });
+            }
+        }
+
+        // ==============================================================================
+        // 6. SERVICIOS Y HORARIOS
+        // ==============================================================================
+        async function cargarServicios() {
+            try {
+                const res = await fetch('/api/servicios');
+                const servicios = await res.json();
+                const grid = document.getElementById('gridServicios');
+                grid.innerHTML = '';
+                servicios.forEach(s => {
+                    grid.innerHTML += `
+                        <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-sm">
+                                        <i class="fa-solid fa-syringe"></i>
+                                    </span>
+                                    <span class="text-xl font-black text-slate-900">$${s.costo.toFixed(2)}</span>
+                                </div>
+                                <h4 class="font-extrabold text-slate-900 text-sm mb-2">${s.nombre_servicio}</h4>
+                                <p class="text-xs text-slate-500 leading-relaxed">${s.descripcion || 'Sin descripción detallada'}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function guardarServicio(e) {
+            e.preventDefault();
+            const body = {
+                nombre_servicio: document.getElementById('servicioNombre').value,
+                costo: parseFloat(document.getElementById('servicioCosto').value),
+                descripcion: document.getElementById('servicioDesc').value
+            };
+            try {
+                const res = await fetch('/api/servicios', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    cerrarModal('modalServicio');
+                    Swal.fire({ icon: 'success', title: 'Servicio Creado', text: data.message, timer: 1500, showConfirmButton: false });
+                    cargarServicios();
+                    document.getElementById('formNuevoServicio').reset();
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.detail });
+                }
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'Error', text: err.message });
+            }
+        }
+
+        async function guardarHorario(e) {
+            e.preventDefault();
+            const body = {
+                fecha: document.getElementById('horarioFecha').value,
+                hora_inicio: document.getElementById('horarioHora').value,
+                estado_horario: 'Disponible'
+            };
+            try {
+                const res = await fetch('/api/horarios', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    cerrarModal('modalHorario');
+                    Swal.fire({ icon: 'success', title: 'Horario Abierto', text: data.message, timer: 1500, showConfirmButton: false });
+                    cargarDashboard();
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.detail });
+                }
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'Error', text: err.message });
+            }
+        }
+
+        // ==============================================================================
+        // 7. REPORTE MASTER JOIN
+        // ==============================================================================
+        async function cargarReporteMaster() {
+            try {
+                const res = await fetch('/api/reportes/master');
+                const data = await res.json();
+                const tbody = document.getElementById('tablaMasterJoin');
+                tbody.innerHTML = '';
+                data.forEach(r => {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3 px-4 font-mono text-slate-400">#${r.id_paciente}</td>
+                            <td class="py-3 px-4 font-bold text-teal-800">${r.mascota}</td>
+                            <td class="py-3 px-4">${r.especie}</td>
+                            <td class="py-3 px-4 text-slate-500">${r.raza || 'Mestizo'}</td>
+                            <td class="py-3 px-4 font-semibold">${r.peso} kg</td>
+                            <td class="py-3 px-4 font-bold text-slate-800">${r.propietario}</td>
+                            <td class="py-3 px-4">📞 ${r.telefono}</td>
+                            <td class="py-3 px-4">📧 ${r.correo}</td>
+                            <td class="py-3 px-4 text-center font-bold text-teal-600 bg-teal-50/50">${r.total_citas}</td>
+                        </tr>
+                    `;
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function descargarReporteCSV() {
+            window.location.href = '/api/reportes/master';
+        }
+
+        // ==============================================================================
+        // 8. DIAGNÓSTICO DB
+        // ==============================================================================
+        async function cargarDiagnostico() {
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+                const grid = document.getElementById('gridTablasDiagnostico');
+                grid.innerHTML = '';
+                
+                const tablas = [
+                    { nombre: 'Rol', icono: 'fa-shield', count: 3 },
+                    { nombre: 'Usuario', icono: 'fa-users', count: data.metricas?.total_propietarios || 0 },
+                    { nombre: 'Mascotas', icono: 'fa-dog', count: data.metricas?.total_mascotas || 0 },
+                    { nombre: 'Servicio', icono: 'fa-tags', count: 6 },
+                    { nombre: 'Horario_Disponible', icono: 'fa-clock', count: 10 },
+                    { nombre: 'Cita', icono: 'fa-calendar-check', count: data.metricas?.total_citas || 0 },
+                    { nombre: 'Historial_Medico', icono: 'fa-file-waveform', count: data.metricas?.total_consultas || 0 }
+                ];
+
+                tablas.forEach(t => {
+                    grid.innerHTML += `
+                        <div class="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl text-center">
+                            <i class="fa-solid ${t.icono} text-teal-600 text-lg mb-1"></i>
+                            <span class="block text-[11px] font-bold text-slate-600">${t.nombre}</span>
+                            <span class="text-xs text-slate-400 font-semibold">Integridad OK</span>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function inicializarBDConConfirmacion() {
+            const confirm = await Swal.fire({
+                title: '¿Inicializar Base de Datos?',
+                text: 'Esto verificará las 7 tablas e insertará registros iniciales si están vacías.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#0d9488',
+                confirmButtonText: 'Sí, inicializar',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (confirm.isConfirmed) {
+                try {
+                    const res = await fetch('/api/init-db', { method: 'POST' });
+                    const data = await res.json();
+                    Swal.fire('¡Listo!', data.message, 'success');
+                    cargarDashboard();
+                } catch (err) {
+                    Swal.fire('Error', err.message, 'error');
+                }
+            }
+        }
+
+        // ==============================================================================
+        // APERTURA / CIERRE DE MODALES
+        // ==============================================================================
+        function abrirModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function cerrarModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        async function abrirModalPropietario() {
+            await cargarRolesEnSelect();
+            abrirModal('modalPropietario');
+        }
+
+        async function abrirModalPaciente() {
+            try {
+                const res = await fetch('/api/usuarios');
+                const users = await res.json();
+                const sel = document.getElementById('mascotaDueno');
+                sel.innerHTML = '';
+                users.forEach(u => {
+                    sel.innerHTML += `<option value="${u.id_usuario}">${u.nombre} (📧 ${u.correo} · 📞 ${u.telefono})</option>`;
+                });
+                abrirModal('modalPaciente');
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function abrirModalPacienteConDueño(idDueno) {
+            abrirModalPaciente().then(() => {
+                document.getElementById('mascotaDueno').value = idDueno;
+            });
+        }
+
+        async function abrirModalCita() {
+            try {
+                // Pacientes
+                const resP = await fetch('/api/mascotas');
+                const pets = await resP.json();
+                const selP = document.getElementById('citaPaciente');
+                selP.innerHTML = '';
+                pets.forEach(p => {
+                    selP.innerHTML += `<option value="${p.id_mascota}">${p.nombre_mascota} (${p.especie}) · Dueño: ${p.nombre_propietario}</option>`;
+                });
+
+                // Servicios
+                const resS = await fetch('/api/servicios');
+                const servs = await resS.json();
+                const selS = document.getElementById('citaServicio');
+                selS.innerHTML = '';
+                servs.forEach(s => {
+                    selS.innerHTML += `<option value="${s.id_servicio}">${s.nombre_servicio} — $${s.costo.toFixed(2)}</option>`;
+                });
+
+                // Horarios disponibles
+                const resH = await fetch('/api/horarios?solo_disponibles=true');
+                const hors = await resH.json();
+                const selH = document.getElementById('citaHorario');
+                selH.innerHTML = '';
+                if (hors.length === 0) {
+                    selH.innerHTML = '<option value="">⚠️ No hay horarios disponibles. Abre un turno primero.</option>';
+                } else {
+                    hors.forEach(h => {
+                        selH.innerHTML += `<option value="${h.id_horario}">📅 ${h.fecha} a las ⏰ ${h.hora_inicio} hrs</option>`;
+                    });
+                }
+
+                abrirModal('modalCita');
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function abrirModalHorario() { abrirModal('modalHorario'); }
+        function abrirModalServicio() { abrirModal('modalServicio'); }
+        function imprimirCarnet() { window.print(); }
+    </script>
+</body>
+</html>
